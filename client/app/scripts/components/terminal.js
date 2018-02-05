@@ -56,7 +56,7 @@ function terminalCellSize(wrapperNode) {
 }
 
 
-function openNewWindow(url, bcr, minWidth = 200) {
+function openNewWindow(url, bcr, pipeId, minWidth = 200) {
   const screenLeft = window.screenX || window.screenLeft;
   const screenTop = window.screenY || window.screenTop;
   const popoutWindowToolbarHeight = 51;
@@ -73,7 +73,10 @@ function openNewWindow(url, bcr, minWidth = 200) {
     .map(k => `${k}=${windowOptions[k]}`)
     .join(',');
 
-  window.open(url, '', windowOptionsString);
+  const w = window.open(url, '', windowOptionsString);
+  w.onbeforeunload = () => {
+    deletePipe(pipeId);
+  };
 }
 
 
@@ -251,7 +254,7 @@ class Terminal extends React.Component {
 
     const bcr = this.node.getBoundingClientRect();
     const minWidth = (this.state.characterWidth * 80) + (8 * 2);
-    openNewWindow(`${basePath(window.location.pathname)}/terminal.html#!/state/${paramString}`, bcr, minWidth);
+    openNewWindow(`${basePath(window.location.pathname)}/terminal.html#!/state/${paramString}`, bcr, this.getPipeId(), minWidth);
   }
 
   handleResize() {
